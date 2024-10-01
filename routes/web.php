@@ -8,8 +8,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/todolist.view',[TodoController::class, 'index'])->name('todo');//Penamaan Router
-Route::post('/todolist.post',[TodoController::class, 'store'])->name('todo.post');
+Route::get('/todolist',[TodoController::class, 'index'])->name('todo.view');//Penamaan Router
+Route::post('/todolist',[TodoController::class, 'store'])->name('todo.post');
+// waspada : put hanya bisa digunakan satu kali saja!!
+Route::put('/todolist/{id}',[TodoController::class, 'update'])->name('todo.update');//untuk menangani update form
+Route::delete('/todolist/{id}',[TodoController::class, 'destroy'])->name('todo.delete');//untuk menangani delete
 
 // Route::get('/todo', function () {
 //     return view('todo.app');

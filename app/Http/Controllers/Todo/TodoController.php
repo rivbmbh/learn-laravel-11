@@ -13,12 +13,14 @@ class TodoController extends Controller
      */
     public function index()
     {   
-        $todoModel = TodoModel::orderBy('task', 'ASC')->get();//menampilkan data dari DB
-        $data = [
-            'title' => 'Todolist with Laravel',
-            'dataTodo' => $todoModel
-        ];
-        return view('todo.app', $data);
+        $max_data = 2;
+        if(request('search')){
+            $data = TodoModel::where('task', 'like', '%'.request('search').'%')->paginate($max_data)->withQueryString();//menampilkan data dari hasil pencarian
+        }else{
+            $data = TodoModel::orderBy('task', 'ASC')->paginate($max_data);//menampilkan data dari DB
+        }
+        $title = 'Todolist with laravel';
+        return view('todo.app', compact('data', 'title'));//compact() untuk pemanggilan variable dengan syarat namanya harus sama persis
     }
 
     /**
@@ -51,7 +53,7 @@ class TodoController extends Controller
         ];
 
         TodoModel::create($data);//insert data ke DB
-        return redirect()->route('todo')->with('success', 'Successfully Add Data Todo');
+        return redirect()->route('todo.view')->with('success', 'Successfully Add Data Todo');
     }
 
     /**
@@ -75,7 +77,21 @@ class TodoController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'task' => 'required|min:4'
+        ],
+        [
+            'task.required' => 'Inputan task tidak boleh kosong !',
+            'task.min' => 'Inputan task harus berisi minimal 3 karakter !'
+        ]);
+
+        $data = [
+            'task' => $request->input('task'),
+            'is_done' => $request->input('is_done'),
+        ];
+
+        TodoModel::where('id', $id)->update($data);
+        return redirect()->route('todo.view')->with('success', 'Successfully Updated Data');
     }
 
     /**
@@ -83,6 +99,8 @@ class TodoController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        TodoModel::where('id', $id)->delete();
+        return redirect()->route('todo.view')->with('success', 'Successfully Deleted Data');
+
     }
 }

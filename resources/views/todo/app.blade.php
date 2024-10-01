@@ -38,7 +38,7 @@
         <h1 class="text-center mb-4">To Do List</h1>
         <div class="row justify-content-center">
             <div class="col-md-8">
-             <div class="card mb-3">
+            <div class="card mb-3">
                 <div class="card-body">
                     @if (session('success'))
                     <div class="alert alert-success">
@@ -74,9 +74,9 @@
                 <div class="card">
                     <div class="card-body">
                         <!-- 03. Searching -->
-                        <form id="todo-form" action="" method="get">
+                        <form id="todo-form" action="{{ route('todo.view') }}" method="get">
                             <div class="input-group mb-3">
-                                <input type="text" class="form-control" name="search" value="" 
+                                <input type="text" class="form-control" name="search" value="{{ request('search') }}" 
                                     placeholder="masukkan kata kunci">
                                 <button class="btn btn-secondary" type="submit">
                                     Cari
@@ -86,13 +86,22 @@
                         
                         <ul class="list-group mb-4" id="todo-list">
                             <!-- 04. Display Data -->
-                            @foreach ($dataTodo as $value)
+                            @foreach ($data as $value)
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span class="task-text">{{ $value->task }}</span>
+                                <span class="task-text">
+                                    {!! $value->is_done == '1' ? '<del>' : '' !!}
+                                        {{ $value->task }}
+                                    {!! $value->is_done == '1' ? '</del>' : '' !!}
+                                </span>
                                 <input type="text" class="form-control edit-input" style="display: none;"
                                     value="{{ $value->task }}">
                                 <div class="btn-group">
-                                    <button class="btn btn-danger btn-sm delete-btn">✕</button>
+                                    {{-- Delete Data --}}
+                                    <form action="{{ route('todo.delete', ['id' => $value->id]) }}" method="POST">
+                                        @csrf
+                                        @method('delete')
+                                        <button class="btn btn-danger btn-sm delete-btn" onclick="return confirm('Are you sure you want to delete this Data?')">✕</button>
+                                    </form>
                                     <button class="btn btn-primary btn-sm edit-btn" data-bs-toggle="collapse"
                                         data-bs-target="#collapse-{{ $loop->index }}" aria-expanded="false">✎</button>
                                 </div>
@@ -100,12 +109,14 @@
                             <!-- 05. Update Data -->
                             <li class="list-group-item collapse" id="collapse-{{ $loop->index }}">
                             {{-- $loop->index : cara kerjanya sama seperti button update jadi dia akan meng indexkan data mana yang kita klik saat ingin mengeditnya --}}
-                                <form action="" method="POST">
+                                <form action="{{ route('todo.update', ['id' => $value->id]) }}" method="POST">
+                                    @csrf
+                                    @method('put'){{-- use put : untuk mencegah 2 method yang sama dalam satu halaman --}}
                                     <div>
                                         <div class="input-group mb-3">
                                             <input type="text" class="form-control" name="task"
                                                 value="{{ $value->task }}">
-                                            <button class="btn btn-outline-primary" type="button">Update</button>
+                                            <button class="btn btn-outline-primary" type="submit">Update</button>
                                         </div>
                                     </div>
                                     <div class="d-flex">
@@ -123,7 +134,8 @@
                                 </form>
                             </li>
                             @endforeach
-                        </ul>                        
+                        </ul>
+                        {{ $data->links() }}
                     </div>
                 </div>
             </div>
