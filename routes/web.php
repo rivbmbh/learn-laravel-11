@@ -8,8 +8,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/todo',[TodoController::class, 'index']);
-Route::post('/todo',[TodoController::class, 'store']);
+Route::get('/todolist.view',[TodoController::class, 'index'])->name('todo');//Penamaan Router
+Route::post('/todolist.post',[TodoController::class, 'store'])->name('todo.post');
 
 // Route::get('/todo', function () {
 //     return view('todo.app');

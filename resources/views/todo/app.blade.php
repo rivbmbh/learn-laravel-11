@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To Do List Laravel 11</title>
+    <title>{{ $title }}</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -40,6 +40,12 @@
             <div class="col-md-8">
              <div class="card mb-3">
                 <div class="card-body">
+                    @if (session('success'))
+                    <div class="alert alert-success">
+                        <span>{{ session('success') }}</span>
+                        <button onclick="this.parentElement.style.display='none';">X</button>
+                    </div>
+                    @endif
                     @if ($errors->any())
                         <div class="alert alert-danger">
                             <ul>
@@ -50,7 +56,7 @@
                         </div>
                     @endif
                     <!-- 02. Form input data -->
-                    <form id="todo-form" action="{{ url('/todo') }}" method="post">
+                    <form id="todo-form" action="{{ route('todo.post') }}" method="post">
                         @csrf
                         <div class="input-group mb-3">
                             <input type="text" class="form-control" name="task" id="todo-input"
@@ -63,7 +69,7 @@
                                 <p class="text-danger fs-6">*{{ $message }}</p>
                             @enderror
                     </form>
-                  </div>
+                    </div>
                 </div>
                 <div class="card">
                     <div class="card-body">
@@ -80,43 +86,44 @@
                         
                         <ul class="list-group mb-4" id="todo-list">
                             <!-- 04. Display Data -->
+                            @foreach ($dataTodo as $value)
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span class="task-text">Coding</span>
+                                <span class="task-text">{{ $value->task }}</span>
                                 <input type="text" class="form-control edit-input" style="display: none;"
-                                    value="Coding">
+                                    value="{{ $value->task }}">
                                 <div class="btn-group">
                                     <button class="btn btn-danger btn-sm delete-btn">✕</button>
                                     <button class="btn btn-primary btn-sm edit-btn" data-bs-toggle="collapse"
-                                        data-bs-target="#collapse-1" aria-expanded="false">✎</button>
+                                        data-bs-target="#collapse-{{ $loop->index }}" aria-expanded="false">✎</button>
                                 </div>
                             </li>
                             <!-- 05. Update Data -->
-                            <li class="list-group-item collapse" id="collapse-1">
+                            <li class="list-group-item collapse" id="collapse-{{ $loop->index }}">
+                            {{-- $loop->index : cara kerjanya sama seperti button update jadi dia akan meng indexkan data mana yang kita klik saat ingin mengeditnya --}}
                                 <form action="" method="POST">
                                     <div>
                                         <div class="input-group mb-3">
                                             <input type="text" class="form-control" name="task"
-                                                value="Coding">
+                                                value="{{ $value->task }}">
                                             <button class="btn btn-outline-primary" type="button">Update</button>
                                         </div>
                                     </div>
                                     <div class="d-flex">
                                         <div class="radio px-2">
                                             <label>
-                                                <input type="radio" value="1" name="is_done"> Selesai
+                                                <input type="radio" value="1" name="is_done" {{ $value->is_done == '1' ? 'checked' : '' }}> Selesai
                                             </label>
                                         </div>
                                         <div class="radio">
                                             <label>
-                                                <input type="radio" value="0" name="is_done"> Belum
+                                                <input type="radio" value="0" name="is_done" {{ $value->is_done == '0' ? 'checked' : '' }}> Belum
                                             </label>
                                         </div>
                                     </div>
                                 </form>
                             </li>
-                        </ul>
-                        
-                        
+                            @endforeach
+                        </ul>                        
                     </div>
                 </div>
             </div>
